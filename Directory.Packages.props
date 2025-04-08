@@ -45,5 +45,6 @@
     <PackageVersion Include="Microsoft.Playwright" Version="1.48.0" />
     <PackageVersion Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
     <PackageVersion Include="SpecFlow.NUnit" Version="3.9.74" />
+    <PackageVersion Include="RestSharp" Version="112.1.1-alpha.0.4" />
   </ItemGroup>
 </Project>

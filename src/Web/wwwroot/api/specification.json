@@ -6,6 +6,29 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Movie": {
+      "get": {
+        "tags": [
+          "Movie"
+        ],
+        "operationId": "GetMovies",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SummarizedMovie"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -332,6 +355,70 @@
   },
   "components": {
     "schemas": {
+      "SummarizedMovie": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "adult": {
+            "type": "boolean"
+          },
+          "backdrop_Path": {
+            "type": "string",
+            "nullable": true
+          },
+          "genre_Ids": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "original_Language": {
+            "type": "string",
+            "nullable": true
+          },
+          "original_Title": {
+            "type": "string",
+            "nullable": true
+          },
+          "overview": {
+            "type": "string",
+            "nullable": true
+          },
+          "popularity": {
+            "type": "number",
+            "format": "double"
+          },
+          "poster_Path": {
+            "type": "string",
+            "nullable": true
+          },
+          "release_Date": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "video": {
+            "type": "boolean"
+          },
+          "vote_Average": {
+            "type": "number",
+            "format": "double"
+          },
+          "vote_Count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
         "additionalProperties": false,
