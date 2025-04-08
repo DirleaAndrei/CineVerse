@@ -6,22 +6,31 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/Movie": {
+    "/api/Movie/{page}": {
       "get": {
         "tags": [
           "Movie"
         ],
         "operationId": "GetMovies",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SummarizedMovie"
-                  }
+                  "$ref": "#/components/schemas/PaginatedListOfSummarizedMovie"
                 }
               }
             }
@@ -355,6 +364,36 @@
   },
   "components": {
     "schemas": {
+      "PaginatedListOfSummarizedMovie": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummarizedMovie"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
       "SummarizedMovie": {
         "type": "object",
         "additionalProperties": false,
@@ -362,11 +401,11 @@
           "adult": {
             "type": "boolean"
           },
-          "backdrop_Path": {
+          "backdrop_path": {
             "type": "string",
             "nullable": true
           },
-          "genre_Ids": {
+          "genre_ids": {
             "type": "array",
             "nullable": true,
             "items": {
@@ -378,11 +417,11 @@
             "type": "integer",
             "format": "int32"
           },
-          "original_Language": {
+          "original_language": {
             "type": "string",
             "nullable": true
           },
-          "original_Title": {
+          "original_title": {
             "type": "string",
             "nullable": true
           },
@@ -394,11 +433,11 @@
             "type": "number",
             "format": "double"
           },
-          "poster_Path": {
+          "poster_path": {
             "type": "string",
             "nullable": true
           },
-          "release_Date": {
+          "release_date": {
             "type": "string",
             "nullable": true
           },
@@ -409,11 +448,11 @@
           "video": {
             "type": "boolean"
           },
-          "vote_Average": {
+          "vote_average": {
             "type": "number",
             "format": "double"
           },
-          "vote_Count": {
+          "vote_count": {
             "type": "integer",
             "format": "int32"
           }

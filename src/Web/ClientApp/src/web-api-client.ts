@@ -20,8 +20,11 @@ export class MovieClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
     }
 
-    getMovies(): Promise<SummarizedMovie[]> {
-        let url_ = this.baseUrl + "/api/Movie";
+    getMovies(page: number): Promise<PaginatedListOfSummarizedMovie> {
+        let url_ = this.baseUrl + "/api/Movie/{page}";
+        if (page === undefined || page === null)
+            throw new Error("The parameter 'page' must be defined.");
+        url_ = url_.replace("{page}", encodeURIComponent("" + page));
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -36,7 +39,7 @@ export class MovieClient {
         });
     }
 
-    protected processGetMovies(response: Response): Promise<SummarizedMovie[]> {
+    protected processGetMovies(response: Response): Promise<PaginatedListOfSummarizedMovie> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -44,14 +47,7 @@ export class MovieClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(SummarizedMovie.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
+            result200 = PaginatedListOfSummarizedMovie.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -59,7 +55,7 @@ export class MovieClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<SummarizedMovie[]>(null as any);
+        return Promise.resolve<PaginatedListOfSummarizedMovie>(null as any);
     }
 }
 
@@ -494,21 +490,85 @@ export class WeatherForecastsClient {
     }
 }
 
+export class PaginatedListOfSummarizedMovie implements IPaginatedListOfSummarizedMovie {
+    items?: SummarizedMovie[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfSummarizedMovie) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SummarizedMovie.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfSummarizedMovie {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfSummarizedMovie();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfSummarizedMovie {
+    items?: SummarizedMovie[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
 export class SummarizedMovie implements ISummarizedMovie {
     adult?: boolean;
-    backdrop_Path?: string | undefined;
-    genre_Ids?: number[] | undefined;
+    backdrop_path?: string | undefined;
+    genre_ids?: number[] | undefined;
     id?: number;
-    original_Language?: string | undefined;
-    original_Title?: string | undefined;
+    original_language?: string | undefined;
+    original_title?: string | undefined;
     overview?: string | undefined;
     popularity?: number;
-    poster_Path?: string | undefined;
-    release_Date?: string | undefined;
+    poster_path?: string | undefined;
+    release_date?: string | undefined;
     title?: string | undefined;
     video?: boolean;
-    vote_Average?: number;
-    vote_Count?: number;
+    vote_average?: number;
+    vote_count?: number;
 
     constructor(data?: ISummarizedMovie) {
         if (data) {
@@ -522,23 +582,23 @@ export class SummarizedMovie implements ISummarizedMovie {
     init(_data?: any) {
         if (_data) {
             this.adult = _data["adult"];
-            this.backdrop_Path = _data["backdrop_Path"];
-            if (Array.isArray(_data["genre_Ids"])) {
-                this.genre_Ids = [] as any;
-                for (let item of _data["genre_Ids"])
-                    this.genre_Ids!.push(item);
+            this.backdrop_path = _data["backdrop_path"];
+            if (Array.isArray(_data["genre_ids"])) {
+                this.genre_ids = [] as any;
+                for (let item of _data["genre_ids"])
+                    this.genre_ids!.push(item);
             }
             this.id = _data["id"];
-            this.original_Language = _data["original_Language"];
-            this.original_Title = _data["original_Title"];
+            this.original_language = _data["original_language"];
+            this.original_title = _data["original_title"];
             this.overview = _data["overview"];
             this.popularity = _data["popularity"];
-            this.poster_Path = _data["poster_Path"];
-            this.release_Date = _data["release_Date"];
+            this.poster_path = _data["poster_path"];
+            this.release_date = _data["release_date"];
             this.title = _data["title"];
             this.video = _data["video"];
-            this.vote_Average = _data["vote_Average"];
-            this.vote_Count = _data["vote_Count"];
+            this.vote_average = _data["vote_average"];
+            this.vote_count = _data["vote_count"];
         }
     }
 
@@ -552,42 +612,42 @@ export class SummarizedMovie implements ISummarizedMovie {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["adult"] = this.adult;
-        data["backdrop_Path"] = this.backdrop_Path;
-        if (Array.isArray(this.genre_Ids)) {
-            data["genre_Ids"] = [];
-            for (let item of this.genre_Ids)
-                data["genre_Ids"].push(item);
+        data["backdrop_path"] = this.backdrop_path;
+        if (Array.isArray(this.genre_ids)) {
+            data["genre_ids"] = [];
+            for (let item of this.genre_ids)
+                data["genre_ids"].push(item);
         }
         data["id"] = this.id;
-        data["original_Language"] = this.original_Language;
-        data["original_Title"] = this.original_Title;
+        data["original_language"] = this.original_language;
+        data["original_title"] = this.original_title;
         data["overview"] = this.overview;
         data["popularity"] = this.popularity;
-        data["poster_Path"] = this.poster_Path;
-        data["release_Date"] = this.release_Date;
+        data["poster_path"] = this.poster_path;
+        data["release_date"] = this.release_date;
         data["title"] = this.title;
         data["video"] = this.video;
-        data["vote_Average"] = this.vote_Average;
-        data["vote_Count"] = this.vote_Count;
+        data["vote_average"] = this.vote_average;
+        data["vote_count"] = this.vote_count;
         return data;
     }
 }
 
 export interface ISummarizedMovie {
     adult?: boolean;
-    backdrop_Path?: string | undefined;
-    genre_Ids?: number[] | undefined;
+    backdrop_path?: string | undefined;
+    genre_ids?: number[] | undefined;
     id?: number;
-    original_Language?: string | undefined;
-    original_Title?: string | undefined;
+    original_language?: string | undefined;
+    original_title?: string | undefined;
     overview?: string | undefined;
     popularity?: number;
-    poster_Path?: string | undefined;
-    release_Date?: string | undefined;
+    poster_path?: string | undefined;
+    release_date?: string | undefined;
     title?: string | undefined;
     video?: boolean;
-    vote_Average?: number;
-    vote_Count?: number;
+    vote_average?: number;
+    vote_count?: number;
 }
 
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {

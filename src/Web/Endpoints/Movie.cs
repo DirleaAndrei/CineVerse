@@ -9,14 +9,14 @@ namespace CineVerse.Web.Endpoints
         public override void Map(WebApplication app)
         {
             app.MapGroup(this)
-            .MapGet(GetMovies);
+            .MapGet(GetMovies, "{page}");
             // .MapGet(SearchMoviesByName, "searchByName/{query}/{genreID}")
             // .MapGet(GetMovieDetails, "movie/{id}");
         }
 
-        public async Task<Ok<List<SummarizedMovie>>> GetMovies(ISender sender)
+        public async Task<Ok<PaginatedList<SummarizedMovie>>> GetMovies(ISender sender, int page)
         {
-            var movies = await sender.Send(new GetMoviesQuery());
+            var movies = await sender.Send(new GetMoviesQuery { Page = page });
             return TypedResults.Ok(movies);
         }
         // public async Task<IResult> SearchMoviesByName(ISender sender, string query, int genreId)

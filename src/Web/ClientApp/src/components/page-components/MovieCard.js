@@ -11,9 +11,9 @@ export const MovieCard = ({ movie }) => {
       <Row className="g-0">
         {/* Left Column: Poster */}
         <Col xs={4} md={3}>
-          {movie.poster_Path ? (
+          {movie.poster_path ? (
             <Card.Img
-              src={`https://image.tmdb.org/t/p/w500/${movie.poster_Path}`}
+              src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
               alt={movie.title}
               style={{
                 width: "100%",
