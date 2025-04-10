@@ -49,7 +49,7 @@ export class NavMenu extends Component {
   handleSearchSubmit(event) {
     event.preventDefault();
     // Redirect to the Movies page with the search query and type as parameters
-    window.location.href = `/movies?search=${this.state.searchQuery}&genreId=${this.state.genreId}`;
+    window.location.href = `/movies/search?query=${this.state.searchQuery}&genreId=${this.state.genreId}`;
   }
 
   render() {

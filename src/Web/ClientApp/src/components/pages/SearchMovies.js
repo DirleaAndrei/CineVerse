@@ -4,20 +4,25 @@ import { MovieClient } from "../../web-api-client.ts";
 import { MovieCard } from "../shared/MovieCard.js";
 import { PaginationComponent } from "../shared/PaginationComponent.js";
 
-export const Movies = () => {
+export const SearchMovies = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    populateMoviesData(pageNumber);
-  }, [pageNumber]);
+    // Get the search query and genreId from the URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get("query") || " ";
+    const genre = parseInt(urlParams.get("genreId")) || 0;
 
-  const populateMoviesData = async (pageNumber) => {
+    populateMoviesData(query, genre, pageNumber);
+  }, [pageNumber]); // Runs when pageNumber changes
+
+  const populateMoviesData = async (query, genreId, pageNumber) => {
     setLoading(true);
     let client = new MovieClient();
-    const data = await client.getMovies(pageNumber);
+    const data = await client.searchMovies(query, genreId, pageNumber);
     setMovies(data.items);
     setTotalPages(data.totalPages);
     setPageNumber(data.pageNumber);
@@ -47,7 +52,7 @@ export const Movies = () => {
 
   return (
     <div>
-      <h1 id="tableLabel">Top Movies</h1>
+      <h1 id="tableLabel">Movie Results</h1>
       {loading ? (
         <p>
           <em>Loading...</em>

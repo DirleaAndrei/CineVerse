@@ -21,7 +21,6 @@ namespace CineVerse.Application.Movies.Queries.GetMovies
 
         public async Task<PaginatedList<SummarizedMovie>> Handle(GetMoviesQuery request, CancellationToken cancellationToken)
         {
-            var noResults = new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
             try
             {
                 var options = new RestClientOptions($"https://api.themoviedb.org/3/movie/popular?page={request.Page}");
@@ -39,7 +38,7 @@ namespace CineVerse.Application.Movies.Queries.GetMovies
 
                     if (moviesResponse == null || moviesResponse?.results == null)
                     {
-                        return noResults;
+                        return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
                     }
 
                     return new PaginatedList<SummarizedMovie>
@@ -50,14 +49,14 @@ namespace CineVerse.Application.Movies.Queries.GetMovies
                 {
                     // Handle the error response as needed
                     Console.WriteLine($"Response was not successful: {response.StatusCode} - {response.Content}");
-                    return noResults;
+                    return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
                 }
             }
             catch (Exception ex)
             {
                 // Log or handle the exception as needed
                 Console.WriteLine($"Error fetching movies: {ex.Message}");
-                return noResults;
+                return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
             }
         }
     }
