@@ -5,7 +5,7 @@ using CineVerse.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace CineVerse.Web;
 
 public static class DependencyInjection
 {

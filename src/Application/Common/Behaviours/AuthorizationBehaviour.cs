@@ -33,6 +33,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             // Role-based authorization
             var authorizeAttributesWithRoles = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Roles));
 
+
             if (authorizeAttributesWithRoles.Any())
             {
                 var authorized = false;

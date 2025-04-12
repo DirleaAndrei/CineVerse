@@ -25,6 +25,8 @@
       <Publish>false</Publish>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
     <PackageReference Include="NSwag.AspNetCore" />
     <PackageReference Include="NSwag.MSBuild">
       <PrivateAssets>all</PrivateAssets>
