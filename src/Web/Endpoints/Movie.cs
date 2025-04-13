@@ -9,8 +9,8 @@ namespace CineVerse.Web.Endpoints
         public override void Map(WebApplication app)
         {
             app.MapGroup(this)
-            .MapGet(GetMovies, "{page}");
-            // .MapGet(SearchMovies, "searchMovies/{query}/{genreID}/{page}")
+            .MapGet(GetMovies, "{page}")
+            .MapGet(SearchMovies, "searchMovies/{query}/{genreID}/{page}");
             // .MapGet(GetMovieDetails, "movie/{id}");
         }
 
@@ -28,15 +28,15 @@ namespace CineVerse.Web.Endpoints
             }
         }
 
-        // public async Task<Results<Ok<PaginatedList<SummarizedMovie>>, BadRequest<string>>>
-        //          SearchMovies(ISender sender, string query, int genreId, int page)
-        // {
-        //     if (string.IsNullOrWhiteSpace(query) && genreId == 0)
-        //         return TypedResults.BadRequest("Query cannot be null or empty.");
+        public async Task<Results<Ok<PaginatedList<SummarizedMovie>>, BadRequest<string>>>
+                 SearchMovies(ISender sender, string query, int genreId, int page)
+        {
+            if (string.IsNullOrWhiteSpace(query) && genreId == 0)
+                return TypedResults.BadRequest("Query cannot be null or empty.");
 
-        //     var movies = await sender.Send(new SearchInMoviesQuery { Query = query, GenreId = genreId, Page = page });
-        //     return TypedResults.Ok(movies);
-        // }
+            var movies = await sender.Send(new SearchMoviesQuery { Query = query, GenreId = genreId, Page = page });
+            return TypedResults.Ok(movies);
+        }
 
         // public async Task<Results<Ok<MovieDetails>, NotFound<string>>>
         //          GetMovieDetails(ISender sender, int id)
