@@ -27,7 +27,10 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, PaginatedLi
     {
         try
         {
-            var options = new RestClientOptions($"{_tmdbSettings.BaseUrl}/movie/popular?page={request.Page}");
+            var options = new RestClientOptions($"{_tmdbSettings.BaseUrl}/movie/popular?page={request.Page}")
+            {
+                Timeout = TimeSpan.FromMilliseconds(5000)
+            };
             var client = new RestClient(options);
             var restRequest = new RestRequest("");
             restRequest.AddHeader("accept", "application/json");
@@ -43,8 +46,8 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, PaginatedLi
 
                 if (moviesResponse == null || moviesResponse?.results == null)
                 {
-                    _logger.LogWarning("Movies response is null or empty.");
-                    return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
+                    _logger.LogError("There was an issue deserializing the response. Response: {Response}", jsonResponse);
+                    throw new Exception("Failed to deserialize the response from TMDB API.");
                 }
 
                 return new PaginatedList<SummarizedMovie>
@@ -57,6 +60,11 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, PaginatedLi
                     response.StatusCode, response.Content);
                 throw new Exception("Failed to fetch movies from TMDB API.");
             }
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "The API request was canceled, possibly due to a timeout.");
+            throw new TimeoutException("The request to the TMDB API timed out. Please try again later.", ex);
         }
         catch (Exception ex)
         {
