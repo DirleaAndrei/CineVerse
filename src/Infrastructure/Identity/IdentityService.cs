@@ -1,8 +1,8 @@
 using CineVerse.Application.Common.Interfaces;
 using CineVerse.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace CineVerse.Infrastructure.Identity;
 
@@ -11,15 +11,17 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService, IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -77,5 +79,11 @@ public class IdentityService : IIdentityService
         var result = await _userManager.DeleteAsync(user);
 
         return result.ToApplicationResult();
+    }
+
+    public bool IsUserLoggedIn()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        return user?.Identity?.IsAuthenticated ?? false;
     }
 }

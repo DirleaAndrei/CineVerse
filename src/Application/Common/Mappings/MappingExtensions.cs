@@ -1,4 +1,5 @@
-﻿namespace CineVerse.Application.Common.Mappings;
+﻿namespace Template.Application.Common.Mappings;
 
 public static class MappingExtensions
-{ }
+{
+}

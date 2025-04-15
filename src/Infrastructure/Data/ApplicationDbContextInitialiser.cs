@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using CineVerse.Domain.Constants;
+using CineVerse.Domain.Entities;
 using CineVerse.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -85,6 +86,37 @@ public class ApplicationDbContextInitialiser
                 await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
             }
 
+            await _context.SaveChangesAsync();
+        }
+
+        if (!_context.Comments.Any())
+        {
+            var firstComment = new Comment()
+            {
+                Text = "The best movie ever!",
+                MovieId = 950387,
+                CreatedBy = administrator.Id,
+                ParentCommentId = null
+            };
+            _context.Comments.Add(firstComment);
+            await _context.SaveChangesAsync();
+
+            var comments = new List<Comment>(){
+            new Comment
+            {
+                Text = "I didn't like it.",
+                MovieId = 950387,
+                CreatedBy = Guid.NewGuid().ToString(),
+                ParentCommentId = null
+            },
+            new Comment
+            {
+                Text = "I agree with you!",
+                MovieId = 950387,
+                CreatedBy = Guid.NewGuid().ToString(),
+                ParentCommentId = firstComment.Id
+            }};
+            _context.Comments.AddRange(comments);
             await _context.SaveChangesAsync();
         }
     }

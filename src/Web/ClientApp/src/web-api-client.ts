@@ -109,6 +109,183 @@ export class MovieClient {
         }
         return Promise.resolve<PaginatedListOfSummarizedMovie>(null as any);
     }
+
+    getMovieDetails(id: number): Promise<MovieDetails> {
+        let url_ = this.baseUrl + "/api/Movie/movie/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetMovieDetails(_response);
+        });
+    }
+
+    protected processGetMovieDetails(response: Response): Promise<MovieDetails> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MovieDetails.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status === 404) {
+            return response.text().then((_responseText) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = NotFoundException.fromJS(resultData404);
+            return throwException("A server side error occurred.", status, _responseText, _headers, result404);
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<MovieDetails>(null as any);
+    }
+
+    getComments(id: number): Promise<CommentDto[]> {
+        let url_ = this.baseUrl + "/api/Movie/movie/{id}/comments";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetComments(_response);
+        });
+    }
+
+    protected processGetComments(response: Response): Promise<CommentDto[]> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CommentDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<CommentDto[]>(null as any);
+    }
+
+    createComment(command: CreateCommentCommand): Promise<number> {
+        let url_ = this.baseUrl + "/api/Movie/comment";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateComment(_response);
+        });
+    }
+
+    protected processCreateComment(response: Response): Promise<number> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number>(null as any);
+    }
+}
+
+export class ProfileClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getIsUserLoggedIn(): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/Profile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetIsUserLoggedIn(_response);
+        });
+    }
+
+    protected processGetIsUserLoggedIn(response: Response): Promise<boolean> {
+        followIfLoginRedirect(response);
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<boolean>(null as any);
+    }
 }
 
 export class WeatherForecastsClient {
@@ -314,6 +491,1873 @@ export interface ISummarizedMovie {
     video?: boolean;
     vote_average?: number;
     vote_count?: number;
+}
+
+export class MovieDetails implements IMovieDetails {
+    adult?: boolean;
+    backdrop_path?: string | undefined;
+    budget?: number;
+    genres?: Genre[] | undefined;
+    homepage?: string | undefined;
+    id?: number;
+    imdb_id?: string | undefined;
+    origin_country?: string[] | undefined;
+    original_language?: string | undefined;
+    original_title?: string | undefined;
+    overview?: string | undefined;
+    popularity?: number;
+    poster_path?: string | undefined;
+    production_companies?: ProductionCompany[] | undefined;
+    release_date?: Date | undefined;
+    revenue?: number;
+    runtime?: number | undefined;
+    status?: string | undefined;
+    tagline?: string | undefined;
+    title?: string | undefined;
+    video?: boolean;
+    vote_average?: number | undefined;
+    vote_count?: number | undefined;
+
+    constructor(data?: IMovieDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.adult = _data["adult"];
+            this.backdrop_path = _data["backdrop_path"];
+            this.budget = _data["budget"];
+            if (Array.isArray(_data["genres"])) {
+                this.genres = [] as any;
+                for (let item of _data["genres"])
+                    this.genres!.push(Genre.fromJS(item));
+            }
+            this.homepage = _data["homepage"];
+            this.id = _data["id"];
+            this.imdb_id = _data["imdb_id"];
+            if (Array.isArray(_data["origin_country"])) {
+                this.origin_country = [] as any;
+                for (let item of _data["origin_country"])
+                    this.origin_country!.push(item);
+            }
+            this.original_language = _data["original_language"];
+            this.original_title = _data["original_title"];
+            this.overview = _data["overview"];
+            this.popularity = _data["popularity"];
+            this.poster_path = _data["poster_path"];
+            if (Array.isArray(_data["production_companies"])) {
+                this.production_companies = [] as any;
+                for (let item of _data["production_companies"])
+                    this.production_companies!.push(ProductionCompany.fromJS(item));
+            }
+            this.release_date = _data["release_date"] ? new Date(_data["release_date"].toString()) : <any>undefined;
+            this.revenue = _data["revenue"];
+            this.runtime = _data["runtime"];
+            this.status = _data["status"];
+            this.tagline = _data["tagline"];
+            this.title = _data["title"];
+            this.video = _data["video"];
+            this.vote_average = _data["vote_average"];
+            this.vote_count = _data["vote_count"];
+        }
+    }
+
+    static fromJS(data: any): MovieDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new MovieDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["adult"] = this.adult;
+        data["backdrop_path"] = this.backdrop_path;
+        data["budget"] = this.budget;
+        if (Array.isArray(this.genres)) {
+            data["genres"] = [];
+            for (let item of this.genres)
+                data["genres"].push(item.toJSON());
+        }
+        data["homepage"] = this.homepage;
+        data["id"] = this.id;
+        data["imdb_id"] = this.imdb_id;
+        if (Array.isArray(this.origin_country)) {
+            data["origin_country"] = [];
+            for (let item of this.origin_country)
+                data["origin_country"].push(item);
+        }
+        data["original_language"] = this.original_language;
+        data["original_title"] = this.original_title;
+        data["overview"] = this.overview;
+        data["popularity"] = this.popularity;
+        data["poster_path"] = this.poster_path;
+        if (Array.isArray(this.production_companies)) {
+            data["production_companies"] = [];
+            for (let item of this.production_companies)
+                data["production_companies"].push(item.toJSON());
+        }
+        data["release_date"] = this.release_date ? this.release_date.toISOString() : <any>undefined;
+        data["revenue"] = this.revenue;
+        data["runtime"] = this.runtime;
+        data["status"] = this.status;
+        data["tagline"] = this.tagline;
+        data["title"] = this.title;
+        data["video"] = this.video;
+        data["vote_average"] = this.vote_average;
+        data["vote_count"] = this.vote_count;
+        return data;
+    }
+}
+
+export interface IMovieDetails {
+    adult?: boolean;
+    backdrop_path?: string | undefined;
+    budget?: number;
+    genres?: Genre[] | undefined;
+    homepage?: string | undefined;
+    id?: number;
+    imdb_id?: string | undefined;
+    origin_country?: string[] | undefined;
+    original_language?: string | undefined;
+    original_title?: string | undefined;
+    overview?: string | undefined;
+    popularity?: number;
+    poster_path?: string | undefined;
+    production_companies?: ProductionCompany[] | undefined;
+    release_date?: Date | undefined;
+    revenue?: number;
+    runtime?: number | undefined;
+    status?: string | undefined;
+    tagline?: string | undefined;
+    title?: string | undefined;
+    video?: boolean;
+    vote_average?: number | undefined;
+    vote_count?: number | undefined;
+}
+
+export class Genre implements IGenre {
+    id?: number;
+    name?: string | undefined;
+
+    constructor(data?: IGenre) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): Genre {
+        data = typeof data === 'object' ? data : {};
+        let result = new Genre();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        return data;
+    }
+}
+
+export interface IGenre {
+    id?: number;
+    name?: string | undefined;
+}
+
+export class ProductionCompany implements IProductionCompany {
+    id?: number;
+    logo_path?: string | undefined;
+    name?: string | undefined;
+    origin_country?: string | undefined;
+
+    constructor(data?: IProductionCompany) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.logo_path = _data["logo_path"];
+            this.name = _data["name"];
+            this.origin_country = _data["origin_country"];
+        }
+    }
+
+    static fromJS(data: any): ProductionCompany {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductionCompany();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["logo_path"] = this.logo_path;
+        data["name"] = this.name;
+        data["origin_country"] = this.origin_country;
+        return data;
+    }
+}
+
+export interface IProductionCompany {
+    id?: number;
+    logo_path?: string | undefined;
+    name?: string | undefined;
+    origin_country?: string | undefined;
+}
+
+export class Exception implements IException {
+    targetSite?: MethodBase | undefined;
+    message?: string;
+    data?: any[];
+    innerException?: Exception | undefined;
+    helpLink?: string | undefined;
+    source?: string | undefined;
+    hResult?: number;
+    stackTrace?: string | undefined;
+
+    constructor(data?: IException) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.targetSite = _data["targetSite"] ? MethodBase.fromJS(_data["targetSite"]) : <any>undefined;
+            this.message = _data["message"];
+            if (Array.isArray(_data["data"])) {
+                this.data = [] as any;
+                for (let item of _data["data"])
+                    this.data!.push(item);
+            }
+            this.innerException = _data["innerException"] ? Exception.fromJS(_data["innerException"]) : <any>undefined;
+            this.helpLink = _data["helpLink"];
+            this.source = _data["source"];
+            this.hResult = _data["hResult"];
+            this.stackTrace = _data["stackTrace"];
+        }
+    }
+
+    static fromJS(data: any): Exception {
+        data = typeof data === 'object' ? data : {};
+        let result = new Exception();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["targetSite"] = this.targetSite ? this.targetSite.toJSON() : <any>undefined;
+        data["message"] = this.message;
+        if (Array.isArray(this.data)) {
+            data["data"] = [];
+            for (let item of this.data)
+                data["data"].push(item);
+        }
+        data["innerException"] = this.innerException ? this.innerException.toJSON() : <any>undefined;
+        data["helpLink"] = this.helpLink;
+        data["source"] = this.source;
+        data["hResult"] = this.hResult;
+        data["stackTrace"] = this.stackTrace;
+        return data;
+    }
+}
+
+export interface IException {
+    targetSite?: MethodBase | undefined;
+    message?: string;
+    data?: any[];
+    innerException?: Exception | undefined;
+    helpLink?: string | undefined;
+    source?: string | undefined;
+    hResult?: number;
+    stackTrace?: string | undefined;
+}
+
+export class NotFoundException extends Exception implements INotFoundException {
+
+    constructor(data?: INotFoundException) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+    }
+
+    static override fromJS(data: any): NotFoundException {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotFoundException();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface INotFoundException extends IException {
+}
+
+export abstract class MemberInfo implements IMemberInfo {
+    memberType?: MemberTypes;
+    name?: string;
+    declaringType?: string | undefined;
+    reflectedType?: string | undefined;
+    module?: Module;
+    customAttributes?: CustomAttributeData[];
+    isCollectible?: boolean;
+    metadataToken?: number;
+
+    constructor(data?: IMemberInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.memberType = _data["memberType"];
+            this.name = _data["name"];
+            this.declaringType = _data["declaringType"];
+            this.reflectedType = _data["reflectedType"];
+            this.module = _data["module"] ? Module.fromJS(_data["module"]) : <any>undefined;
+            if (Array.isArray(_data["customAttributes"])) {
+                this.customAttributes = [] as any;
+                for (let item of _data["customAttributes"])
+                    this.customAttributes!.push(CustomAttributeData.fromJS(item));
+            }
+            this.isCollectible = _data["isCollectible"];
+            this.metadataToken = _data["metadataToken"];
+        }
+    }
+
+    static fromJS(data: any): MemberInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'MemberInfo' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        data["name"] = this.name;
+        data["declaringType"] = this.declaringType;
+        data["reflectedType"] = this.reflectedType;
+        data["module"] = this.module ? this.module.toJSON() : <any>undefined;
+        if (Array.isArray(this.customAttributes)) {
+            data["customAttributes"] = [];
+            for (let item of this.customAttributes)
+                data["customAttributes"].push(item.toJSON());
+        }
+        data["isCollectible"] = this.isCollectible;
+        data["metadataToken"] = this.metadataToken;
+        return data;
+    }
+}
+
+export interface IMemberInfo {
+    memberType?: MemberTypes;
+    name?: string;
+    declaringType?: string | undefined;
+    reflectedType?: string | undefined;
+    module?: Module;
+    customAttributes?: CustomAttributeData[];
+    isCollectible?: boolean;
+    metadataToken?: number;
+}
+
+export abstract class MethodBase extends MemberInfo implements IMethodBase {
+    attributes?: MethodAttributes;
+    methodImplementationFlags?: MethodImplAttributes;
+    callingConvention?: CallingConventions;
+    isAbstract?: boolean;
+    isConstructor?: boolean;
+    isFinal?: boolean;
+    isHideBySig?: boolean;
+    isSpecialName?: boolean;
+    isStatic?: boolean;
+    isVirtual?: boolean;
+    isAssembly?: boolean;
+    isFamily?: boolean;
+    isFamilyAndAssembly?: boolean;
+    isFamilyOrAssembly?: boolean;
+    isPrivate?: boolean;
+    isPublic?: boolean;
+    isConstructedGenericMethod?: boolean;
+    isGenericMethod?: boolean;
+    isGenericMethodDefinition?: boolean;
+    containsGenericParameters?: boolean;
+    methodHandle?: RuntimeMethodHandle;
+    isSecurityCritical?: boolean;
+    isSecuritySafeCritical?: boolean;
+    isSecurityTransparent?: boolean;
+
+    constructor(data?: IMethodBase) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.attributes = _data["attributes"];
+            this.methodImplementationFlags = _data["methodImplementationFlags"];
+            this.callingConvention = _data["callingConvention"];
+            this.isAbstract = _data["isAbstract"];
+            this.isConstructor = _data["isConstructor"];
+            this.isFinal = _data["isFinal"];
+            this.isHideBySig = _data["isHideBySig"];
+            this.isSpecialName = _data["isSpecialName"];
+            this.isStatic = _data["isStatic"];
+            this.isVirtual = _data["isVirtual"];
+            this.isAssembly = _data["isAssembly"];
+            this.isFamily = _data["isFamily"];
+            this.isFamilyAndAssembly = _data["isFamilyAndAssembly"];
+            this.isFamilyOrAssembly = _data["isFamilyOrAssembly"];
+            this.isPrivate = _data["isPrivate"];
+            this.isPublic = _data["isPublic"];
+            this.isConstructedGenericMethod = _data["isConstructedGenericMethod"];
+            this.isGenericMethod = _data["isGenericMethod"];
+            this.isGenericMethodDefinition = _data["isGenericMethodDefinition"];
+            this.containsGenericParameters = _data["containsGenericParameters"];
+            this.methodHandle = _data["methodHandle"] ? RuntimeMethodHandle.fromJS(_data["methodHandle"]) : <any>undefined;
+            this.isSecurityCritical = _data["isSecurityCritical"];
+            this.isSecuritySafeCritical = _data["isSecuritySafeCritical"];
+            this.isSecurityTransparent = _data["isSecurityTransparent"];
+        }
+    }
+
+    static override fromJS(data: any): MethodBase {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'MethodBase' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attributes"] = this.attributes;
+        data["methodImplementationFlags"] = this.methodImplementationFlags;
+        data["callingConvention"] = this.callingConvention;
+        data["isAbstract"] = this.isAbstract;
+        data["isConstructor"] = this.isConstructor;
+        data["isFinal"] = this.isFinal;
+        data["isHideBySig"] = this.isHideBySig;
+        data["isSpecialName"] = this.isSpecialName;
+        data["isStatic"] = this.isStatic;
+        data["isVirtual"] = this.isVirtual;
+        data["isAssembly"] = this.isAssembly;
+        data["isFamily"] = this.isFamily;
+        data["isFamilyAndAssembly"] = this.isFamilyAndAssembly;
+        data["isFamilyOrAssembly"] = this.isFamilyOrAssembly;
+        data["isPrivate"] = this.isPrivate;
+        data["isPublic"] = this.isPublic;
+        data["isConstructedGenericMethod"] = this.isConstructedGenericMethod;
+        data["isGenericMethod"] = this.isGenericMethod;
+        data["isGenericMethodDefinition"] = this.isGenericMethodDefinition;
+        data["containsGenericParameters"] = this.containsGenericParameters;
+        data["methodHandle"] = this.methodHandle ? this.methodHandle.toJSON() : <any>undefined;
+        data["isSecurityCritical"] = this.isSecurityCritical;
+        data["isSecuritySafeCritical"] = this.isSecuritySafeCritical;
+        data["isSecurityTransparent"] = this.isSecurityTransparent;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IMethodBase extends IMemberInfo {
+    attributes?: MethodAttributes;
+    methodImplementationFlags?: MethodImplAttributes;
+    callingConvention?: CallingConventions;
+    isAbstract?: boolean;
+    isConstructor?: boolean;
+    isFinal?: boolean;
+    isHideBySig?: boolean;
+    isSpecialName?: boolean;
+    isStatic?: boolean;
+    isVirtual?: boolean;
+    isAssembly?: boolean;
+    isFamily?: boolean;
+    isFamilyAndAssembly?: boolean;
+    isFamilyOrAssembly?: boolean;
+    isPrivate?: boolean;
+    isPublic?: boolean;
+    isConstructedGenericMethod?: boolean;
+    isGenericMethod?: boolean;
+    isGenericMethodDefinition?: boolean;
+    containsGenericParameters?: boolean;
+    methodHandle?: RuntimeMethodHandle;
+    isSecurityCritical?: boolean;
+    isSecuritySafeCritical?: boolean;
+    isSecurityTransparent?: boolean;
+}
+
+export enum MethodAttributes {
+    PrivateScope = 0,
+    ReuseSlot = 0,
+    Private = 1,
+    FamANDAssem = 2,
+    Assembly = 3,
+    Family = 4,
+    FamORAssem = 5,
+    Public = 6,
+    MemberAccessMask = 7,
+    UnmanagedExport = 8,
+    Static = 16,
+    Final = 32,
+    Virtual = 64,
+    HideBySig = 128,
+    NewSlot = 256,
+    VtableLayoutMask = 256,
+    CheckAccessOnOverride = 512,
+    Abstract = 1024,
+    SpecialName = 2048,
+    RTSpecialName = 4096,
+    PinvokeImpl = 8192,
+    HasSecurity = 16384,
+    RequireSecObject = 32768,
+    ReservedMask = 53248,
+}
+
+export enum MethodImplAttributes {
+    IL = 0,
+    Managed = 0,
+    Native = 1,
+    OPTIL = 2,
+    CodeTypeMask = 3,
+    Runtime = 3,
+    ManagedMask = 4,
+    Unmanaged = 4,
+    NoInlining = 8,
+    ForwardRef = 16,
+    Synchronized = 32,
+    NoOptimization = 64,
+    PreserveSig = 128,
+    AggressiveInlining = 256,
+    AggressiveOptimization = 512,
+    InternalCall = 4096,
+    MaxMethodImplVal = 65535,
+}
+
+export enum CallingConventions {
+    Standard = 1,
+    VarArgs = 2,
+    Any = 3,
+    HasThis = 32,
+    ExplicitThis = 64,
+}
+
+export class RuntimeMethodHandle implements IRuntimeMethodHandle {
+    value?: IntPtr;
+
+    constructor(data?: IRuntimeMethodHandle) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"] ? IntPtr.fromJS(_data["value"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RuntimeMethodHandle {
+        data = typeof data === 'object' ? data : {};
+        let result = new RuntimeMethodHandle();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value ? this.value.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRuntimeMethodHandle {
+    value?: IntPtr;
+}
+
+export class IntPtr implements IIntPtr {
+
+    constructor(data?: IIntPtr) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): IntPtr {
+        data = typeof data === 'object' ? data : {};
+        let result = new IntPtr();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IIntPtr {
+}
+
+export enum MemberTypes {
+    Constructor = 1,
+    Event = 2,
+    Field = 4,
+    Method = 8,
+    Property = 16,
+    TypeInfo = 32,
+    Custom = 64,
+    NestedType = 128,
+    All = 191,
+}
+
+export abstract class Module implements IModule {
+    assembly?: Assembly;
+    fullyQualifiedName?: string;
+    name?: string;
+    mdStreamVersion?: number;
+    moduleVersionId?: string;
+    scopeName?: string;
+    moduleHandle?: ModuleHandle;
+    customAttributes?: CustomAttributeData[];
+    metadataToken?: number;
+
+    constructor(data?: IModule) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.assembly = _data["assembly"] ? Assembly.fromJS(_data["assembly"]) : <any>undefined;
+            this.fullyQualifiedName = _data["fullyQualifiedName"];
+            this.name = _data["name"];
+            this.mdStreamVersion = _data["mdStreamVersion"];
+            this.moduleVersionId = _data["moduleVersionId"];
+            this.scopeName = _data["scopeName"];
+            this.moduleHandle = _data["moduleHandle"] ? ModuleHandle.fromJS(_data["moduleHandle"]) : <any>undefined;
+            if (Array.isArray(_data["customAttributes"])) {
+                this.customAttributes = [] as any;
+                for (let item of _data["customAttributes"])
+                    this.customAttributes!.push(CustomAttributeData.fromJS(item));
+            }
+            this.metadataToken = _data["metadataToken"];
+        }
+    }
+
+    static fromJS(data: any): Module {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'Module' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["assembly"] = this.assembly ? this.assembly.toJSON() : <any>undefined;
+        data["fullyQualifiedName"] = this.fullyQualifiedName;
+        data["name"] = this.name;
+        data["mdStreamVersion"] = this.mdStreamVersion;
+        data["moduleVersionId"] = this.moduleVersionId;
+        data["scopeName"] = this.scopeName;
+        data["moduleHandle"] = this.moduleHandle ? this.moduleHandle.toJSON() : <any>undefined;
+        if (Array.isArray(this.customAttributes)) {
+            data["customAttributes"] = [];
+            for (let item of this.customAttributes)
+                data["customAttributes"].push(item.toJSON());
+        }
+        data["metadataToken"] = this.metadataToken;
+        return data;
+    }
+}
+
+export interface IModule {
+    assembly?: Assembly;
+    fullyQualifiedName?: string;
+    name?: string;
+    mdStreamVersion?: number;
+    moduleVersionId?: string;
+    scopeName?: string;
+    moduleHandle?: ModuleHandle;
+    customAttributes?: CustomAttributeData[];
+    metadataToken?: number;
+}
+
+export abstract class Assembly implements IAssembly {
+    definedTypes?: TypeInfo[];
+    exportedTypes?: string[];
+    codeBase?: string | undefined;
+    entryPoint?: MethodInfo | undefined;
+    fullName?: string | undefined;
+    imageRuntimeVersion?: string;
+    isDynamic?: boolean;
+    location?: string;
+    reflectionOnly?: boolean;
+    isCollectible?: boolean;
+    isFullyTrusted?: boolean;
+    customAttributes?: CustomAttributeData[];
+    escapedCodeBase?: string;
+    manifestModule?: Module;
+    modules?: Module[];
+    globalAssemblyCache?: boolean;
+    hostContext?: number;
+    securityRuleSet?: SecurityRuleSet;
+
+    constructor(data?: IAssembly) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["definedTypes"])) {
+                this.definedTypes = [] as any;
+                for (let item of _data["definedTypes"])
+                    this.definedTypes!.push(TypeInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["exportedTypes"])) {
+                this.exportedTypes = [] as any;
+                for (let item of _data["exportedTypes"])
+                    this.exportedTypes!.push(item);
+            }
+            this.codeBase = _data["codeBase"];
+            this.entryPoint = _data["entryPoint"] ? MethodInfo.fromJS(_data["entryPoint"]) : <any>undefined;
+            this.fullName = _data["fullName"];
+            this.imageRuntimeVersion = _data["imageRuntimeVersion"];
+            this.isDynamic = _data["isDynamic"];
+            this.location = _data["location"];
+            this.reflectionOnly = _data["reflectionOnly"];
+            this.isCollectible = _data["isCollectible"];
+            this.isFullyTrusted = _data["isFullyTrusted"];
+            if (Array.isArray(_data["customAttributes"])) {
+                this.customAttributes = [] as any;
+                for (let item of _data["customAttributes"])
+                    this.customAttributes!.push(CustomAttributeData.fromJS(item));
+            }
+            this.escapedCodeBase = _data["escapedCodeBase"];
+            this.manifestModule = _data["manifestModule"] ? Module.fromJS(_data["manifestModule"]) : <any>undefined;
+            if (Array.isArray(_data["modules"])) {
+                this.modules = [] as any;
+                for (let item of _data["modules"])
+                    this.modules!.push(Module.fromJS(item));
+            }
+            this.globalAssemblyCache = _data["globalAssemblyCache"];
+            this.hostContext = _data["hostContext"];
+            this.securityRuleSet = _data["securityRuleSet"];
+        }
+    }
+
+    static fromJS(data: any): Assembly {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'Assembly' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.definedTypes)) {
+            data["definedTypes"] = [];
+            for (let item of this.definedTypes)
+                data["definedTypes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.exportedTypes)) {
+            data["exportedTypes"] = [];
+            for (let item of this.exportedTypes)
+                data["exportedTypes"].push(item);
+        }
+        data["codeBase"] = this.codeBase;
+        data["entryPoint"] = this.entryPoint ? this.entryPoint.toJSON() : <any>undefined;
+        data["fullName"] = this.fullName;
+        data["imageRuntimeVersion"] = this.imageRuntimeVersion;
+        data["isDynamic"] = this.isDynamic;
+        data["location"] = this.location;
+        data["reflectionOnly"] = this.reflectionOnly;
+        data["isCollectible"] = this.isCollectible;
+        data["isFullyTrusted"] = this.isFullyTrusted;
+        if (Array.isArray(this.customAttributes)) {
+            data["customAttributes"] = [];
+            for (let item of this.customAttributes)
+                data["customAttributes"].push(item.toJSON());
+        }
+        data["escapedCodeBase"] = this.escapedCodeBase;
+        data["manifestModule"] = this.manifestModule ? this.manifestModule.toJSON() : <any>undefined;
+        if (Array.isArray(this.modules)) {
+            data["modules"] = [];
+            for (let item of this.modules)
+                data["modules"].push(item.toJSON());
+        }
+        data["globalAssemblyCache"] = this.globalAssemblyCache;
+        data["hostContext"] = this.hostContext;
+        data["securityRuleSet"] = this.securityRuleSet;
+        return data;
+    }
+}
+
+export interface IAssembly {
+    definedTypes?: TypeInfo[];
+    exportedTypes?: string[];
+    codeBase?: string | undefined;
+    entryPoint?: MethodInfo | undefined;
+    fullName?: string | undefined;
+    imageRuntimeVersion?: string;
+    isDynamic?: boolean;
+    location?: string;
+    reflectionOnly?: boolean;
+    isCollectible?: boolean;
+    isFullyTrusted?: boolean;
+    customAttributes?: CustomAttributeData[];
+    escapedCodeBase?: string;
+    manifestModule?: Module;
+    modules?: Module[];
+    globalAssemblyCache?: boolean;
+    hostContext?: number;
+    securityRuleSet?: SecurityRuleSet;
+}
+
+export abstract class Anonymous implements IAnonymous {
+    genericTypeParameters?: string[];
+    declaredConstructors?: ConstructorInfo[];
+    declaredEvents?: EventInfo[];
+    declaredFields?: FieldInfo[];
+    declaredMembers?: MemberInfo[];
+    declaredMethods?: MethodInfo[];
+    declaredNestedTypes?: TypeInfo[];
+    declaredProperties?: PropertyInfo[];
+    implementedInterfaces?: string[];
+
+    constructor(data?: IAnonymous) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["genericTypeParameters"])) {
+                this.genericTypeParameters = [] as any;
+                for (let item of _data["genericTypeParameters"])
+                    this.genericTypeParameters!.push(item);
+            }
+            if (Array.isArray(_data["declaredConstructors"])) {
+                this.declaredConstructors = [] as any;
+                for (let item of _data["declaredConstructors"])
+                    this.declaredConstructors!.push(ConstructorInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredEvents"])) {
+                this.declaredEvents = [] as any;
+                for (let item of _data["declaredEvents"])
+                    this.declaredEvents!.push(EventInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredFields"])) {
+                this.declaredFields = [] as any;
+                for (let item of _data["declaredFields"])
+                    this.declaredFields!.push(FieldInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredMembers"])) {
+                this.declaredMembers = [] as any;
+                for (let item of _data["declaredMembers"])
+                    this.declaredMembers!.push(MemberInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredMethods"])) {
+                this.declaredMethods = [] as any;
+                for (let item of _data["declaredMethods"])
+                    this.declaredMethods!.push(MethodInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredNestedTypes"])) {
+                this.declaredNestedTypes = [] as any;
+                for (let item of _data["declaredNestedTypes"])
+                    this.declaredNestedTypes!.push(TypeInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["declaredProperties"])) {
+                this.declaredProperties = [] as any;
+                for (let item of _data["declaredProperties"])
+                    this.declaredProperties!.push(PropertyInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["implementedInterfaces"])) {
+                this.implementedInterfaces = [] as any;
+                for (let item of _data["implementedInterfaces"])
+                    this.implementedInterfaces!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Anonymous {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'Anonymous' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.genericTypeParameters)) {
+            data["genericTypeParameters"] = [];
+            for (let item of this.genericTypeParameters)
+                data["genericTypeParameters"].push(item);
+        }
+        if (Array.isArray(this.declaredConstructors)) {
+            data["declaredConstructors"] = [];
+            for (let item of this.declaredConstructors)
+                data["declaredConstructors"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredEvents)) {
+            data["declaredEvents"] = [];
+            for (let item of this.declaredEvents)
+                data["declaredEvents"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredFields)) {
+            data["declaredFields"] = [];
+            for (let item of this.declaredFields)
+                data["declaredFields"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredMembers)) {
+            data["declaredMembers"] = [];
+            for (let item of this.declaredMembers)
+                data["declaredMembers"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredMethods)) {
+            data["declaredMethods"] = [];
+            for (let item of this.declaredMethods)
+                data["declaredMethods"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredNestedTypes)) {
+            data["declaredNestedTypes"] = [];
+            for (let item of this.declaredNestedTypes)
+                data["declaredNestedTypes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.declaredProperties)) {
+            data["declaredProperties"] = [];
+            for (let item of this.declaredProperties)
+                data["declaredProperties"].push(item.toJSON());
+        }
+        if (Array.isArray(this.implementedInterfaces)) {
+            data["implementedInterfaces"] = [];
+            for (let item of this.implementedInterfaces)
+                data["implementedInterfaces"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IAnonymous {
+    genericTypeParameters?: string[];
+    declaredConstructors?: ConstructorInfo[];
+    declaredEvents?: EventInfo[];
+    declaredFields?: FieldInfo[];
+    declaredMembers?: MemberInfo[];
+    declaredMethods?: MethodInfo[];
+    declaredNestedTypes?: TypeInfo[];
+    declaredProperties?: PropertyInfo[];
+    implementedInterfaces?: string[];
+}
+
+export class TypeInfo extends Anonymous implements ITypeInfo {
+
+    [key: string]: any;
+
+    constructor(data?: ITypeInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+        }
+    }
+
+    static override fromJS(data: any): TypeInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new TypeInfo();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ITypeInfo extends IAnonymous {
+
+    [key: string]: any;
+}
+
+export abstract class ConstructorInfo extends MethodBase implements IConstructorInfo {
+    memberType?: MemberTypes;
+
+    constructor(data?: IConstructorInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.memberType = _data["memberType"];
+        }
+    }
+
+    static override fromJS(data: any): ConstructorInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'ConstructorInfo' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IConstructorInfo extends IMethodBase {
+    memberType?: MemberTypes;
+}
+
+export abstract class EventInfo extends MemberInfo implements IEventInfo {
+    memberType?: MemberTypes;
+    attributes?: EventAttributes;
+    isSpecialName?: boolean;
+    addMethod?: MethodInfo | undefined;
+    removeMethod?: MethodInfo | undefined;
+    raiseMethod?: MethodInfo | undefined;
+    isMulticast?: boolean;
+    eventHandlerType?: string | undefined;
+
+    constructor(data?: IEventInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.memberType = _data["memberType"];
+            this.attributes = _data["attributes"];
+            this.isSpecialName = _data["isSpecialName"];
+            this.addMethod = _data["addMethod"] ? MethodInfo.fromJS(_data["addMethod"]) : <any>undefined;
+            this.removeMethod = _data["removeMethod"] ? MethodInfo.fromJS(_data["removeMethod"]) : <any>undefined;
+            this.raiseMethod = _data["raiseMethod"] ? MethodInfo.fromJS(_data["raiseMethod"]) : <any>undefined;
+            this.isMulticast = _data["isMulticast"];
+            this.eventHandlerType = _data["eventHandlerType"];
+        }
+    }
+
+    static override fromJS(data: any): EventInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'EventInfo' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        data["attributes"] = this.attributes;
+        data["isSpecialName"] = this.isSpecialName;
+        data["addMethod"] = this.addMethod ? this.addMethod.toJSON() : <any>undefined;
+        data["removeMethod"] = this.removeMethod ? this.removeMethod.toJSON() : <any>undefined;
+        data["raiseMethod"] = this.raiseMethod ? this.raiseMethod.toJSON() : <any>undefined;
+        data["isMulticast"] = this.isMulticast;
+        data["eventHandlerType"] = this.eventHandlerType;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEventInfo extends IMemberInfo {
+    memberType?: MemberTypes;
+    attributes?: EventAttributes;
+    isSpecialName?: boolean;
+    addMethod?: MethodInfo | undefined;
+    removeMethod?: MethodInfo | undefined;
+    raiseMethod?: MethodInfo | undefined;
+    isMulticast?: boolean;
+    eventHandlerType?: string | undefined;
+}
+
+export enum EventAttributes {
+    None = 0,
+    SpecialName = 512,
+    RTSpecialName = 1024,
+    ReservedMask = 1024,
+}
+
+export abstract class MethodInfo extends MethodBase implements IMethodInfo {
+    memberType?: MemberTypes;
+    returnParameter?: ParameterInfo;
+    returnType?: string;
+    returnTypeCustomAttributes?: ICustomAttributeProvider;
+    genericParameterCount?: number;
+
+    constructor(data?: IMethodInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.memberType = _data["memberType"];
+            this.returnParameter = _data["returnParameter"] ? ParameterInfo.fromJS(_data["returnParameter"]) : <any>undefined;
+            this.returnType = _data["returnType"];
+            this.returnTypeCustomAttributes = _data["returnTypeCustomAttributes"] ? ICustomAttributeProvider.fromJS(_data["returnTypeCustomAttributes"]) : <any>undefined;
+            this.genericParameterCount = _data["genericParameterCount"];
+        }
+    }
+
+    static override fromJS(data: any): MethodInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'MethodInfo' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        data["returnParameter"] = this.returnParameter ? this.returnParameter.toJSON() : <any>undefined;
+        data["returnType"] = this.returnType;
+        data["returnTypeCustomAttributes"] = this.returnTypeCustomAttributes ? this.returnTypeCustomAttributes.toJSON() : <any>undefined;
+        data["genericParameterCount"] = this.genericParameterCount;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IMethodInfo extends IMethodBase {
+    memberType?: MemberTypes;
+    returnParameter?: ParameterInfo;
+    returnType?: string;
+    returnTypeCustomAttributes?: ICustomAttributeProvider;
+    genericParameterCount?: number;
+}
+
+export class ParameterInfo implements IParameterInfo {
+    attributes?: ParameterAttributes;
+    member?: MemberInfo;
+    name?: string | undefined;
+    parameterType?: string;
+    position?: number;
+    isIn?: boolean;
+    isLcid?: boolean;
+    isOptional?: boolean;
+    isOut?: boolean;
+    isRetval?: boolean;
+    defaultValue?: any | undefined;
+    rawDefaultValue?: any | undefined;
+    hasDefaultValue?: boolean;
+    customAttributes?: CustomAttributeData[];
+    metadataToken?: number;
+
+    constructor(data?: IParameterInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attributes = _data["attributes"];
+            this.member = _data["member"] ? MemberInfo.fromJS(_data["member"]) : <any>undefined;
+            this.name = _data["name"];
+            this.parameterType = _data["parameterType"];
+            this.position = _data["position"];
+            this.isIn = _data["isIn"];
+            this.isLcid = _data["isLcid"];
+            this.isOptional = _data["isOptional"];
+            this.isOut = _data["isOut"];
+            this.isRetval = _data["isRetval"];
+            this.defaultValue = _data["defaultValue"];
+            this.rawDefaultValue = _data["rawDefaultValue"];
+            this.hasDefaultValue = _data["hasDefaultValue"];
+            if (Array.isArray(_data["customAttributes"])) {
+                this.customAttributes = [] as any;
+                for (let item of _data["customAttributes"])
+                    this.customAttributes!.push(CustomAttributeData.fromJS(item));
+            }
+            this.metadataToken = _data["metadataToken"];
+        }
+    }
+
+    static fromJS(data: any): ParameterInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ParameterInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attributes"] = this.attributes;
+        data["member"] = this.member ? this.member.toJSON() : <any>undefined;
+        data["name"] = this.name;
+        data["parameterType"] = this.parameterType;
+        data["position"] = this.position;
+        data["isIn"] = this.isIn;
+        data["isLcid"] = this.isLcid;
+        data["isOptional"] = this.isOptional;
+        data["isOut"] = this.isOut;
+        data["isRetval"] = this.isRetval;
+        data["defaultValue"] = this.defaultValue;
+        data["rawDefaultValue"] = this.rawDefaultValue;
+        data["hasDefaultValue"] = this.hasDefaultValue;
+        if (Array.isArray(this.customAttributes)) {
+            data["customAttributes"] = [];
+            for (let item of this.customAttributes)
+                data["customAttributes"].push(item.toJSON());
+        }
+        data["metadataToken"] = this.metadataToken;
+        return data;
+    }
+}
+
+export interface IParameterInfo {
+    attributes?: ParameterAttributes;
+    member?: MemberInfo;
+    name?: string | undefined;
+    parameterType?: string;
+    position?: number;
+    isIn?: boolean;
+    isLcid?: boolean;
+    isOptional?: boolean;
+    isOut?: boolean;
+    isRetval?: boolean;
+    defaultValue?: any | undefined;
+    rawDefaultValue?: any | undefined;
+    hasDefaultValue?: boolean;
+    customAttributes?: CustomAttributeData[];
+    metadataToken?: number;
+}
+
+export enum ParameterAttributes {
+    None = 0,
+    In = 1,
+    Out = 2,
+    Lcid = 4,
+    Retval = 8,
+    Optional = 16,
+    HasDefault = 4096,
+    HasFieldMarshal = 8192,
+    Reserved3 = 16384,
+    Reserved4 = 32768,
+    ReservedMask = 61440,
+}
+
+export class CustomAttributeData implements ICustomAttributeData {
+    attributeType?: string;
+    constructor_?: ConstructorInfo;
+    constructorArguments?: CustomAttributeTypedArgument[];
+    namedArguments?: CustomAttributeNamedArgument[];
+
+    constructor(data?: ICustomAttributeData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attributeType = _data["attributeType"];
+            this.constructor_ = _data["constructor"] ? ConstructorInfo.fromJS(_data["constructor"]) : <any>undefined;
+            if (Array.isArray(_data["constructorArguments"])) {
+                this.constructorArguments = [] as any;
+                for (let item of _data["constructorArguments"])
+                    this.constructorArguments!.push(CustomAttributeTypedArgument.fromJS(item));
+            }
+            if (Array.isArray(_data["namedArguments"])) {
+                this.namedArguments = [] as any;
+                for (let item of _data["namedArguments"])
+                    this.namedArguments!.push(CustomAttributeNamedArgument.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CustomAttributeData {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomAttributeData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attributeType"] = this.attributeType;
+        data["constructor"] = this.constructor_ ? this.constructor_.toJSON() : <any>undefined;
+        if (Array.isArray(this.constructorArguments)) {
+            data["constructorArguments"] = [];
+            for (let item of this.constructorArguments)
+                data["constructorArguments"].push(item.toJSON());
+        }
+        if (Array.isArray(this.namedArguments)) {
+            data["namedArguments"] = [];
+            for (let item of this.namedArguments)
+                data["namedArguments"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ICustomAttributeData {
+    attributeType?: string;
+    constructor_?: ConstructorInfo;
+    constructorArguments?: CustomAttributeTypedArgument[];
+    namedArguments?: CustomAttributeNamedArgument[];
+}
+
+export class CustomAttributeTypedArgument implements ICustomAttributeTypedArgument {
+    argumentType?: string;
+    value?: any | undefined;
+
+    constructor(data?: ICustomAttributeTypedArgument) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.argumentType = _data["argumentType"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CustomAttributeTypedArgument {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomAttributeTypedArgument();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["argumentType"] = this.argumentType;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface ICustomAttributeTypedArgument {
+    argumentType?: string;
+    value?: any | undefined;
+}
+
+export class CustomAttributeNamedArgument implements ICustomAttributeNamedArgument {
+    argumentType?: string;
+    memberInfo?: MemberInfo;
+    typedValue?: CustomAttributeTypedArgument;
+    memberName?: string;
+    isField?: boolean;
+
+    constructor(data?: ICustomAttributeNamedArgument) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.argumentType = _data["argumentType"];
+            this.memberInfo = _data["memberInfo"] ? MemberInfo.fromJS(_data["memberInfo"]) : <any>undefined;
+            this.typedValue = _data["typedValue"] ? CustomAttributeTypedArgument.fromJS(_data["typedValue"]) : <any>undefined;
+            this.memberName = _data["memberName"];
+            this.isField = _data["isField"];
+        }
+    }
+
+    static fromJS(data: any): CustomAttributeNamedArgument {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomAttributeNamedArgument();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["argumentType"] = this.argumentType;
+        data["memberInfo"] = this.memberInfo ? this.memberInfo.toJSON() : <any>undefined;
+        data["typedValue"] = this.typedValue ? this.typedValue.toJSON() : <any>undefined;
+        data["memberName"] = this.memberName;
+        data["isField"] = this.isField;
+        return data;
+    }
+}
+
+export interface ICustomAttributeNamedArgument {
+    argumentType?: string;
+    memberInfo?: MemberInfo;
+    typedValue?: CustomAttributeTypedArgument;
+    memberName?: string;
+    isField?: boolean;
+}
+
+export abstract class ICustomAttributeProvider implements IICustomAttributeProvider {
+
+    constructor(data?: IICustomAttributeProvider) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): ICustomAttributeProvider {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'ICustomAttributeProvider' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IICustomAttributeProvider {
+}
+
+export abstract class FieldInfo extends MemberInfo implements IFieldInfo {
+    memberType?: MemberTypes;
+    attributes?: FieldAttributes;
+    fieldType?: string;
+    isInitOnly?: boolean;
+    isLiteral?: boolean;
+    isNotSerialized?: boolean;
+    isPinvokeImpl?: boolean;
+    isSpecialName?: boolean;
+    isStatic?: boolean;
+    isAssembly?: boolean;
+    isFamily?: boolean;
+    isFamilyAndAssembly?: boolean;
+    isFamilyOrAssembly?: boolean;
+    isPrivate?: boolean;
+    isPublic?: boolean;
+    isSecurityCritical?: boolean;
+    isSecuritySafeCritical?: boolean;
+    isSecurityTransparent?: boolean;
+    fieldHandle?: RuntimeFieldHandle;
+
+    constructor(data?: IFieldInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.memberType = _data["memberType"];
+            this.attributes = _data["attributes"];
+            this.fieldType = _data["fieldType"];
+            this.isInitOnly = _data["isInitOnly"];
+            this.isLiteral = _data["isLiteral"];
+            this.isNotSerialized = _data["isNotSerialized"];
+            this.isPinvokeImpl = _data["isPinvokeImpl"];
+            this.isSpecialName = _data["isSpecialName"];
+            this.isStatic = _data["isStatic"];
+            this.isAssembly = _data["isAssembly"];
+            this.isFamily = _data["isFamily"];
+            this.isFamilyAndAssembly = _data["isFamilyAndAssembly"];
+            this.isFamilyOrAssembly = _data["isFamilyOrAssembly"];
+            this.isPrivate = _data["isPrivate"];
+            this.isPublic = _data["isPublic"];
+            this.isSecurityCritical = _data["isSecurityCritical"];
+            this.isSecuritySafeCritical = _data["isSecuritySafeCritical"];
+            this.isSecurityTransparent = _data["isSecurityTransparent"];
+            this.fieldHandle = _data["fieldHandle"] ? RuntimeFieldHandle.fromJS(_data["fieldHandle"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): FieldInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'FieldInfo' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        data["attributes"] = this.attributes;
+        data["fieldType"] = this.fieldType;
+        data["isInitOnly"] = this.isInitOnly;
+        data["isLiteral"] = this.isLiteral;
+        data["isNotSerialized"] = this.isNotSerialized;
+        data["isPinvokeImpl"] = this.isPinvokeImpl;
+        data["isSpecialName"] = this.isSpecialName;
+        data["isStatic"] = this.isStatic;
+        data["isAssembly"] = this.isAssembly;
+        data["isFamily"] = this.isFamily;
+        data["isFamilyAndAssembly"] = this.isFamilyAndAssembly;
+        data["isFamilyOrAssembly"] = this.isFamilyOrAssembly;
+        data["isPrivate"] = this.isPrivate;
+        data["isPublic"] = this.isPublic;
+        data["isSecurityCritical"] = this.isSecurityCritical;
+        data["isSecuritySafeCritical"] = this.isSecuritySafeCritical;
+        data["isSecurityTransparent"] = this.isSecurityTransparent;
+        data["fieldHandle"] = this.fieldHandle ? this.fieldHandle.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IFieldInfo extends IMemberInfo {
+    memberType?: MemberTypes;
+    attributes?: FieldAttributes;
+    fieldType?: string;
+    isInitOnly?: boolean;
+    isLiteral?: boolean;
+    isNotSerialized?: boolean;
+    isPinvokeImpl?: boolean;
+    isSpecialName?: boolean;
+    isStatic?: boolean;
+    isAssembly?: boolean;
+    isFamily?: boolean;
+    isFamilyAndAssembly?: boolean;
+    isFamilyOrAssembly?: boolean;
+    isPrivate?: boolean;
+    isPublic?: boolean;
+    isSecurityCritical?: boolean;
+    isSecuritySafeCritical?: boolean;
+    isSecurityTransparent?: boolean;
+    fieldHandle?: RuntimeFieldHandle;
+}
+
+export enum FieldAttributes {
+    PrivateScope = 0,
+    Private = 1,
+    FamANDAssem = 2,
+    Assembly = 3,
+    Family = 4,
+    FamORAssem = 5,
+    Public = 6,
+    FieldAccessMask = 7,
+    Static = 16,
+    InitOnly = 32,
+    Literal = 64,
+    NotSerialized = 128,
+    HasFieldRVA = 256,
+    SpecialName = 512,
+    RTSpecialName = 1024,
+    HasFieldMarshal = 4096,
+    PinvokeImpl = 8192,
+    HasDefault = 32768,
+    ReservedMask = 38144,
+}
+
+export class RuntimeFieldHandle implements IRuntimeFieldHandle {
+    value?: IntPtr;
+
+    constructor(data?: IRuntimeFieldHandle) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"] ? IntPtr.fromJS(_data["value"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RuntimeFieldHandle {
+        data = typeof data === 'object' ? data : {};
+        let result = new RuntimeFieldHandle();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value ? this.value.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRuntimeFieldHandle {
+    value?: IntPtr;
+}
+
+export abstract class PropertyInfo extends MemberInfo implements IPropertyInfo {
+    memberType?: MemberTypes;
+    propertyType?: string;
+    attributes?: PropertyAttributes;
+    isSpecialName?: boolean;
+    canRead?: boolean;
+    canWrite?: boolean;
+    getMethod?: MethodInfo | undefined;
+    setMethod?: MethodInfo | undefined;
+
+    constructor(data?: IPropertyInfo) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.memberType = _data["memberType"];
+            this.propertyType = _data["propertyType"];
+            this.attributes = _data["attributes"];
+            this.isSpecialName = _data["isSpecialName"];
+            this.canRead = _data["canRead"];
+            this.canWrite = _data["canWrite"];
+            this.getMethod = _data["getMethod"] ? MethodInfo.fromJS(_data["getMethod"]) : <any>undefined;
+            this.setMethod = _data["setMethod"] ? MethodInfo.fromJS(_data["setMethod"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): PropertyInfo {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'PropertyInfo' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberType"] = this.memberType;
+        data["propertyType"] = this.propertyType;
+        data["attributes"] = this.attributes;
+        data["isSpecialName"] = this.isSpecialName;
+        data["canRead"] = this.canRead;
+        data["canWrite"] = this.canWrite;
+        data["getMethod"] = this.getMethod ? this.getMethod.toJSON() : <any>undefined;
+        data["setMethod"] = this.setMethod ? this.setMethod.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IPropertyInfo extends IMemberInfo {
+    memberType?: MemberTypes;
+    propertyType?: string;
+    attributes?: PropertyAttributes;
+    isSpecialName?: boolean;
+    canRead?: boolean;
+    canWrite?: boolean;
+    getMethod?: MethodInfo | undefined;
+    setMethod?: MethodInfo | undefined;
+}
+
+export enum PropertyAttributes {
+    None = 0,
+    SpecialName = 512,
+    RTSpecialName = 1024,
+    HasDefault = 4096,
+    Reserved2 = 8192,
+    Reserved3 = 16384,
+    Reserved4 = 32768,
+    ReservedMask = 62464,
+}
+
+export enum SecurityRuleSet {
+    None = 0,
+    Level1 = 1,
+    Level2 = 2,
+}
+
+export class ModuleHandle implements IModuleHandle {
+    mdStreamVersion?: number;
+
+    constructor(data?: IModuleHandle) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.mdStreamVersion = _data["mdStreamVersion"];
+        }
+    }
+
+    static fromJS(data: any): ModuleHandle {
+        data = typeof data === 'object' ? data : {};
+        let result = new ModuleHandle();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mdStreamVersion"] = this.mdStreamVersion;
+        return data;
+    }
+}
+
+export interface IModuleHandle {
+    mdStreamVersion?: number;
+}
+
+export class CommentDto implements ICommentDto {
+    id?: number;
+    text?: string | undefined;
+    parentCommentId?: number | undefined;
+    created?: Date;
+    authorName?: string;
+    lastModified?: Date;
+    modifierName?: string | undefined;
+
+    constructor(data?: ICommentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.text = _data["text"];
+            this.parentCommentId = _data["parentCommentId"];
+            this.created = _data["created"] ? new Date(_data["created"].toString()) : <any>undefined;
+            this.authorName = _data["authorName"];
+            this.lastModified = _data["lastModified"] ? new Date(_data["lastModified"].toString()) : <any>undefined;
+            this.modifierName = _data["modifierName"];
+        }
+    }
+
+    static fromJS(data: any): CommentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CommentDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["text"] = this.text;
+        data["parentCommentId"] = this.parentCommentId;
+        data["created"] = this.created ? this.created.toISOString() : <any>undefined;
+        data["authorName"] = this.authorName;
+        data["lastModified"] = this.lastModified ? this.lastModified.toISOString() : <any>undefined;
+        data["modifierName"] = this.modifierName;
+        return data;
+    }
+}
+
+export interface ICommentDto {
+    id?: number;
+    text?: string | undefined;
+    parentCommentId?: number | undefined;
+    created?: Date;
+    authorName?: string;
+    lastModified?: Date;
+    modifierName?: string | undefined;
+}
+
+export class CreateCommentCommand implements ICreateCommentCommand {
+    movieId?: number;
+    text?: string;
+    parentCommentId?: number | undefined;
+
+    constructor(data?: ICreateCommentCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.movieId = _data["movieId"];
+            this.text = _data["text"];
+            this.parentCommentId = _data["parentCommentId"];
+        }
+    }
+
+    static fromJS(data: any): CreateCommentCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCommentCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["movieId"] = this.movieId;
+        data["text"] = this.text;
+        data["parentCommentId"] = this.parentCommentId;
+        return data;
+    }
+}
+
+export interface ICreateCommentCommand {
+    movieId?: number;
+    text?: string;
+    parentCommentId?: number | undefined;
 }
 
 export class WeatherForecast implements IWeatherForecast {

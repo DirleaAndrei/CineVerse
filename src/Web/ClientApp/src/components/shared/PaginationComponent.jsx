@@ -1,11 +1,7 @@
 import React from "react";
 import { Pagination } from "react-bootstrap";
 
-export const PaginationComponent = ({
-  pageNumber,
-  totalPages,
-  onPageChange,
-}) => {
+export const PaginationComponent = ({ pageNumber, totalPages, onPageChange }) => {
   const maxPagesToShow = 8; // Maximum number of pagination items to display
   let startPage, endPage;
 

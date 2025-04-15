@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row } from "react-bootstrap";
 import { MovieClient } from "../../web-api-client.ts";
-import { MovieCard } from "../shared/MovieCard.js";
-import { PaginationComponent } from "../shared/PaginationComponent.js";
-import { ServerError } from "./ErrorPages/ServerError.js";
+import { MovieCardComponent } from "../shared/MovieCardComponent.jsx";
+import { PaginationComponent } from "../shared/PaginationComponent.jsx";
+import { ServerError } from "./ErrorPages/ServerError.jsx";
 
 export const Movies = () => {
   const [movies, setMovies] = useState([]);
@@ -46,7 +46,7 @@ export const Movies = () => {
       <Container>
         <Row>
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCardComponent key={movie.id} movie={movie} />
           ))}
         </Row>
       </Container>

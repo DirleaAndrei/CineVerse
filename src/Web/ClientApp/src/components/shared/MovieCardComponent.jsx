@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Col, Row } from "react-bootstrap";
 
-export const MovieCard = ({ movie }) => {
+export const MovieCardComponent = ({ movie }) => {
   return (
     <Card
       style={{ borderRadius: "8px", overflow: "hidden", cursor: "pointer" }}
