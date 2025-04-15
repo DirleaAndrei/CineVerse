@@ -1,12 +1,14 @@
 import React from "react";
 import { Card, Col, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 export const MovieCardComponent = ({ movie }) => {
+  const navigate = useNavigate();
   return (
     <Card
       style={{ borderRadius: "8px", overflow: "hidden", cursor: "pointer" }}
       className="mb-4"
-      onClick={() => (window.location.href = `/movie-details/${movie.id}`)}
+      onClick={() => navigate(`/movie-details/${movie.id}`)}
     >
       <Row className="g-0">
         {/* Left Column: Poster */}

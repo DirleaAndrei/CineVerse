@@ -1,69 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { Accordion, Badge, Col, Container, Image, Row } from "react-bootstrap";
-import { MovieClient, ProfileClient } from "../../web-api-client.ts";
+import {
+  Accordion,
+  Badge,
+  Col,
+  Container,
+  Image,
+  Row,
+  Spinner,
+} from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import { MovieClient } from "../../web-api-client.ts";
 import { CommentsComponent } from "../shared/CommentsComponent.jsx";
 import { processApiResponse } from "../utils/Utils.js";
 
 export const MovieDetails = () => {
   const [movie, setMovie] = useState({});
   const [loading, setLoading] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { id: movieId } = useParams();
 
   useEffect(() => {
-    checkIfUserIsLoggedIn();
     populateMovieDetailsData();
   }, []);
-
-  const checkIfUserIsLoggedIn = async () => {
-    setLoading(true);
-    let client = new ProfileClient();
-    let isUserLoggedIn = await processApiResponse(client.getIsUserLoggedIn());
-    setIsLoggedIn(isUserLoggedIn);
-    setLoading(false);
-  };
 
   const populateMovieDetailsData = async () => {
     setLoading(true);
     let client = new MovieClient();
-    const match = window.location.href.match(/\/(\d+)$/);
-    if (match) {
-      const movieId = parseInt(match[1], 10);
-      const data = await processApiResponse(client.getMovieDetails(movieId));
-      setMovie(data);
-
-      // Fetch comments for the movie
-      await fetchComments(movieId);
-      setLoading(false);
-    }
-  };
-
-  const fetchComments = async (movieId) => {
-    let commentClient = new MovieClient();
-    const movieComments = await processApiResponse(
-      commentClient.getComments(movieId)
-    );
-    setComments(movieComments); // Update the comments state
-  };
-
-  const handleAddComment = async (parentCommentId, commentText) => {
-    if (!commentText.trim()) return;
-
-    const newComment = {
-      movieId: movie.id,
-      text: commentText,
-      parentCommentId: Number(parentCommentId) || null,
-    };
-    await postComment(newComment);
-  };
-
-  const postComment = async (newComment) => {
-    let commentClient = new MovieClient();
-    await processApiResponse(commentClient.createComment(newComment));
-    window.location.reload(); // Reload the page to fetch updated comments
+    const data = await processApiResponse(client.getMovieDetails(movieId));
+    setMovie(data);
+    setLoading(false);
   };
 
   const renderMovieDetails = (movie) => {
+    if (loading)
+      return (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "100px" }}
+        >
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      );
+
     if (!movie || Object.keys(movie).length === 0) {
       return <p>No movie details available! 🎥❌</p>;
     }
@@ -147,26 +126,12 @@ export const MovieDetails = () => {
         <Row className="mt-4">
           <Col>
             <h3>Comments</h3>
-            <CommentsComponent
-              comments={comments}
-              isLoggedIn={isLoggedIn}
-              onAddComment={handleAddComment}
-            />
+            <CommentsComponent movieId={movieId} />
           </Col>
         </Row>
       </Container>
     );
   };
 
-  return (
-    <>
-      {loading ? (
-        <p>
-          <em>Loading...</em>
-        </p>
-      ) : (
-        renderMovieDetails(movie)
-      )}
-    </>
-  );
+  return <>{renderMovieDetails(movie)}</>;
 };

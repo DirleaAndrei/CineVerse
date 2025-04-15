@@ -1,10 +1,9 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Col,
   Collapse,
-  Form,
   Input,
   Navbar,
   NavbarBrand,
@@ -16,106 +15,69 @@ import {
 import { MovieGenres } from "../utils/Utils";
 import "./NavMenu.css";
 
-export class NavMenu extends Component {
-  static displayName = NavMenu.name;
-  constructor(props) {
-    super(props);
+export const NavMenu = () => {
+  const [collapsed, setCollapsed] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [genreId, setGenreId] = useState(0); // Default genre ID
+  const navigate = useNavigate();
 
-    this.toggleNavbar = this.toggleNavbar.bind(this);
-    this.handleSearchChange = this.handleSearchChange.bind(this);
-    this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-    this.handleGenreIdChange = this.handleGenreIdChange.bind(this);
+  const toggleNavbar = () => {
+    setCollapsed(!collapsed);
+  };
 
-    this.state = {
-      collapsed: true,
-      searchQuery: "",
-      genreId: 0, // Default genre ID
-    };
-  }
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    if (event.target.value) {
+      setGenreId(0); // Reset genre if searchQuery is not empty
+    }
+  };
 
-  toggleNavbar() {
-    this.setState({
-      collapsed: !this.state.collapsed,
-    });
-  }
+  const handleGenreIdChange = (event) => {
+    setGenreId(Number(event.target.value));
+    if (event.target.value !== 0) {
+      setSearchQuery(""); // Reset searchQuery if a genre is selected
+    }
+  };
 
-  handleSearchChange(event) {
-    this.setState({ searchQuery: event.target.value });
-  }
-
-  handleGenreIdChange(event) {
-    this.setState({ genreId: event.target.value });
-  }
-
-  handleSearchSubmit(event) {
-    event.preventDefault();
-    // Redirect to the Movies page with the search query and type as parameters
-    window.location.href = `/movies/search?query=${this.state.searchQuery}&genreId=${this.state.genreId}`;
-  }
-
-  render() {
-    return (
-      <header>
-        <Navbar
-          className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
-          container
-          light
+  return (
+    <header>
+      <Navbar
+        className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
+        container
+        light
+      >
+        <NavbarBrand tag={Link} to="/">
+          Home
+        </NavbarBrand>
+        <NavbarToggler onClick={toggleNavbar} className="mr-2" />
+        <Collapse
+          className="d-sm-inline-flex flex-sm-row-reverse"
+          isOpen={!collapsed}
+          navbar
         >
-          <NavbarBrand tag={Link} to="/">
-            Home
-          </NavbarBrand>
-          <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-          <Collapse
-            className="d-sm-inline-flex flex-sm-row-reverse"
-            isOpen={!this.state.collapsed}
-            navbar
-          >
-            <ul className="navbar-nav flex-grow">
-              <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/movies">
-                  Movies
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/fetch-data">
-                  Get Weather
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <a
-                  className="nav-link text-dark"
-                  href="/Identity/Account/Manage"
-                >
-                  Account
-                </a>
-              </NavItem>
-            </ul>
-
-            {/* Search Form */}
-            <Form
-              inline
-              onSubmit={this.handleSearchSubmit}
-              className="d-flex w-100 justify-content-center w-100"
-            >
+          <ul className="navbar-nav flex-grow">
+            <NavItem>
               <Row className="w-100 gx-2 justify-content-center">
-                <Col xs="12" sm="6" md="4" lg="4">
+                <Col xs="12" sm="4" md="5" lg="4">
                   <Input
                     type="text"
                     placeholder="Search Movies..."
-                    value={this.state.searchQuery}
-                    onChange={this.handleSearchChange}
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    disabled={genreId !== 0} // Disable if a genre is selected
                     style={{ width: "100%" }}
                   />
                 </Col>
-                <Col xs="12" sm="4" md="3" lg="3">
+                <Col xs="12" sm="5" md="3" lg="4">
                   <Input
                     type="select"
-                    value={this.state.genreId}
-                    onChange={this.handleGenreIdChange}
+                    value={genreId}
+                    onChange={handleGenreIdChange}
+                    disabled={!!searchQuery} // Disable if searchQuery is not empty
                     style={{ width: "100%" }}
                   >
                     {/* Default option */}
-                    <option value="0">All genres</option>
+                    <option value={0}>All genres</option>
 
                     {/* Dynamically generate options from MovieGenres */}
                     {Object.entries(MovieGenres).map(([name, id]) => (
@@ -125,23 +87,35 @@ export class NavMenu extends Component {
                     ))}
                   </Input>
                 </Col>
-                <Col xs="12" sm="2" md="2" lg="2">
+                <Col xs="12" sm="3" md="3" lg="3">
                   <Button
                     color="primary"
-                    disabled={
-                      !this.state.searchQuery && this.state.genreId === 0
+                    disabled={!searchQuery && genreId === 0} // Disable if both are empty
+                    onClick={() =>
+                      navigate(
+                        `/movies/search?query=${searchQuery}&genreId=${genreId}`
+                      )
                     }
-                    type="submit"
                     className="w-100"
                   >
                     Search
                   </Button>
                 </Col>
               </Row>
-            </Form>
-          </Collapse>
-        </Navbar>
-      </header>
-    );
-  }
-}
+            </NavItem>
+            <NavItem>
+              <NavLink tag={Link} className="text-dark" to="/movies">
+                Popular Movies
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <a className="nav-link text-dark" href="/Identity/Account/Manage">
+                Account
+              </a>
+            </NavItem>
+          </ul>
+        </Collapse>
+      </Navbar>
+    </header>
+  );
+};

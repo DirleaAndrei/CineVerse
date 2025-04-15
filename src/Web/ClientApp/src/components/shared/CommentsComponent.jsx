@@ -7,11 +7,36 @@ import {
   Form,
   ListGroup,
   Row,
+  Spinner,
 } from "react-bootstrap";
+import { MovieClient, ProfileClient } from "../../web-api-client.ts";
+import { processApiResponse } from "../utils/Utils.js";
 
-export const CommentsComponent = ({ comments, isLoggedIn, onAddComment }) => {
+export const CommentsComponent = ({ movieId }) => {
+  const [comments, setComments] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [commentTree, setCommentTree] = useState({});
   const [newComments, setNewComments] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchComments(movieId);
+    checkIfUserIsLoggedIn();
+  }, []);
+
+  const fetchComments = async (movieId) => {
+    setLoading(true);
+    let client = new MovieClient();
+    const movieComments = await processApiResponse(client.getComments(movieId));
+    setComments(movieComments);
+    setLoading(false);
+  };
+
+  const checkIfUserIsLoggedIn = async () => {
+    let client = new ProfileClient();
+    let isUserLoggedIn = await processApiResponse(client.getIsUserLoggedIn());
+    setIsLoggedIn(isUserLoggedIn);
+  };
 
   useEffect(() => {
     // Build a tree structure from the flat comments array
@@ -37,7 +62,6 @@ export const CommentsComponent = ({ comments, isLoggedIn, onAddComment }) => {
           tree[comment.id] = commentMap[comment.id];
         }
       });
-
       return tree;
     };
 
@@ -51,17 +75,20 @@ export const CommentsComponent = ({ comments, isLoggedIn, onAddComment }) => {
     }));
   };
 
-  const handleAddComment = (parentCommentId) => {
+  const postComment = async (parentCommentId) => {
     const newCommentText = newComments[parentCommentId] || "";
     if (newCommentText.trim() === "") return;
-    // Call the onAddComment callback
-    onAddComment(parentCommentId, newCommentText);
 
-    // Clear the input field
-    setNewComments((prev) => ({
-      ...prev,
-      [parentCommentId]: "",
-    }));
+    const newComment = {
+      movieId: movieId,
+      text: newCommentText,
+      parentCommentId: Number(parentCommentId) || null,
+    };
+
+    let client = new MovieClient();
+    let comment = await processApiResponse(client.createComment(newComment));
+    delete newComments[parentCommentId];
+    setComments([...comments, comment]);
   };
 
   const renderComments = (comments) => {
@@ -98,7 +125,7 @@ export const CommentsComponent = ({ comments, isLoggedIn, onAddComment }) => {
                   <Col xs={3} sm={2} className="d-flex justify-content-end">
                     <Button
                       variant="primary"
-                      onClick={() => handleAddComment(comment.id)}
+                      onClick={() => postComment(comment.id)}
                     >
                       Reply
                     </Button>
@@ -129,37 +156,54 @@ export const CommentsComponent = ({ comments, isLoggedIn, onAddComment }) => {
     ));
   };
 
-  return (
-    <div className="comments-component">
-      <ListGroup>{renderComments(commentTree)}</ListGroup>
+  const renderAddNewComment = () => {
+    return (
+      <Card className="mt-3">
+        <Card.Body>
+          <Form>
+            <Row>
+              <Col xs={9} sm={10}>
+                <Form.Control
+                  type="text"
+                  placeholder="Add a new comment..."
+                  value={newComments["new"] || ""}
+                  onChange={(e) => handleInputChange("new", e.target.value)}
+                />
+              </Col>
+              <Col xs={3} sm={2} className="d-flex justify-content-end">
+                <Button variant="success" onClick={() => postComment("new")}>
+                  Add
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Card.Body>
+      </Card>
+    );
+  };
 
-      {/* Input for adding a new top-level comment */}
-      {isLoggedIn && (
-        <Card className="mt-3">
-          <Card.Body>
-            <Form>
-              <Row>
-                <Col xs={9} sm={10}>
-                  <Form.Control
-                    type="text"
-                    placeholder="Add a new comment..."
-                    value={newComments["new"] || ""}
-                    onChange={(e) => handleInputChange("new", e.target.value)}
-                  />
-                </Col>
-                <Col xs={3} sm={2} className="d-flex justify-content-end">
-                  <Button
-                    variant="success"
-                    onClick={() => handleAddComment("new")}
-                  >
-                    Add
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-          </Card.Body>
-        </Card>
+  if ((!comments || Object.keys(commentTree).length === 0) && !isLoggedIn) {
+    return <p>No comments available.</p>;
+  }
+
+  return (
+    <>
+      {loading ? (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "100px" }}
+        >
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <div className="comments-component">
+          <ListGroup>{renderComments(commentTree)}</ListGroup>
+          {/* Input for adding a new top-level comment */}
+          {isLoggedIn && renderAddNewComment()}
+        </div>
       )}
-    </div>
+    </>
   );
 };

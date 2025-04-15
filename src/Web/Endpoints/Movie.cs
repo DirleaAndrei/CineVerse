@@ -61,7 +61,7 @@ namespace CineVerse.Web.Endpoints
             return TypedResults.Ok(comments);
         }
 
-        public async Task<int> CreateComment(ISender sender, CreateCommentCommand command)
+        public async Task<CommentDto> CreateComment(ISender sender, CreateCommentCommand command)
         {
             return await sender.Send(command);
         }

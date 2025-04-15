@@ -1,11 +1,12 @@
 using CineVerse.Application.Common.Interfaces;
+using CineVerse.Application.Common.Models;
 using CineVerse.Application.Common.Security;
 using CineVerse.Domain.Entities;
 
 namespace CineVerse.Application.Movies.Commands.CreateComment;
 
 [Authorize]
-public record CreateCommentCommand : IRequest<int>
+public record CreateCommentCommand : IRequest<CommentDto>
 {
     public int MovieId { get; init; }
 
@@ -14,18 +15,21 @@ public record CreateCommentCommand : IRequest<int>
     public int? ParentCommentId { get; set; }
 }
 
-public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, int>
+public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _currentUser;
+    private readonly IIdentityService _identityService;
 
-    public CreateCommentCommandHandler(IApplicationDbContext context, IUser currentUser)
+    public CreateCommentCommandHandler(IApplicationDbContext context, IUser currentUser,
+    IIdentityService identityService)
     {
         _context = context;
         _currentUser = currentUser;
+        _identityService = identityService;
     }
 
-    public async Task<int> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<CommentDto> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
         var comment = new Comment
         {
@@ -39,6 +43,23 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return comment.Id;
+        var savedComment = await _context.Comments
+            .FirstOrDefaultAsync(c => c.Id == comment.Id);
+
+        if (savedComment == null)
+        {
+            throw new NotFoundException(nameof(Comment), comment.Id.ToString());
+        }
+
+        return new CommentDto
+        {
+            Id = savedComment.Id,
+            Text = savedComment.Text,
+            ParentCommentId = savedComment.ParentCommentId,
+            Created = savedComment.Created,
+            AuthorName = _identityService.GetUserNameAsync(savedComment.CreatedBy ?? string.Empty).Result ?? "Unknown",
+            LastModified = savedComment.LastModified,
+            ModifierName = savedComment.LastModifiedBy
+        };
     }
 }

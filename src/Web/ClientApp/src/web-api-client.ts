@@ -200,7 +200,7 @@ export class MovieClient {
         return Promise.resolve<CommentDto[]>(null as any);
     }
 
-    createComment(command: CreateCommentCommand): Promise<number> {
+    createComment(command: CreateCommentCommand): Promise<CommentDto> {
         let url_ = this.baseUrl + "/api/Movie/comment";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -220,7 +220,7 @@ export class MovieClient {
         });
     }
 
-    protected processCreateComment(response: Response): Promise<number> {
+    protected processCreateComment(response: Response): Promise<CommentDto> {
         followIfLoginRedirect(response);
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
@@ -228,8 +228,7 @@ export class MovieClient {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = resultData200 !== undefined ? resultData200 : <any>null;
-    
+            result200 = CommentDto.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -237,7 +236,7 @@ export class MovieClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<number>(null as any);
+        return Promise.resolve<CommentDto>(null as any);
     }
 }
 

@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row } from "react-bootstrap";
+import { Container, Row, Spinner } from "react-bootstrap";
 import { MovieClient } from "../../web-api-client.ts";
 import { MovieCardComponent } from "../shared/MovieCardComponent.jsx";
 import { PaginationComponent } from "../shared/PaginationComponent.jsx";
-import { ServerError } from "./ErrorPages/ServerError.jsx";
+import { processApiResponse } from "../utils/Utils.js";
 
 export const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     populateMoviesData(pageNumber);
@@ -18,18 +17,12 @@ export const Movies = () => {
 
   const populateMoviesData = async (pageNumber) => {
     setLoading(true);
-    setError(null); // Reset error state
-    try {
-      let client = new MovieClient();
-      const data = await client.getMovies(pageNumber);
-      setMovies(data.items);
-      setTotalPages(data.totalPages);
-      setPageNumber(data.pageNumber);
-    } catch (err) {
-      setError("Failed to load movies. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
+    let client = new MovieClient();
+    const data = await processApiResponse(client.getMovies(pageNumber));
+    setMovies(data.items);
+    setTotalPages(data.totalPages);
+    setPageNumber(data.pageNumber);
+    setLoading(false);
   };
 
   const handlePageChange = (newPageNumber) => {
@@ -38,6 +31,18 @@ export const Movies = () => {
   };
 
   const renderMovies = (movies) => {
+    if (loading)
+      return (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "100px" }}
+        >
+          <Spinner animation="border" role="status" variant="primary">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      );
+
     if (!movies || movies.length === 0) {
       return <p>No Movies at the moment! 🎥❌</p>;
     }
@@ -53,32 +58,17 @@ export const Movies = () => {
     );
   };
 
-  if (error) {
-    return (
-      <ServerError
-        message={error}
-        onRetry={() => populateMoviesData(pageNumber)}
-      />
-    );
-  }
-
   return (
     <div>
-      <h1 id="tableLabel">Top Movies</h1>
-      {loading ? (
-        <p>
-          <em>Loading...</em>
-        </p>
-      ) : (
-        <>
-          {renderMovies(movies)}
-          <PaginationComponent
-            pageNumber={pageNumber}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </>
-      )}
+      <h1 id="tableLabel">Popular Movies</h1>
+      <>
+        {renderMovies(movies)}
+        <PaginationComponent
+          pageNumber={pageNumber}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </>
     </div>
   );
 };
