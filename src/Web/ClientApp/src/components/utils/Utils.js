@@ -37,12 +37,6 @@ export const processApiResponse = async (apiCall) => {
       if (statusCode === 401) {
         // Redirect to login page if the user is not authenticated
         window.location.href = "/Identity/Account/Login";
-      } else if (statusCode === 403) {
-        // Redirect to forbidden page if the user does not have access
-        window.location.href = "/forbidden";
-      } else if (statusCode === 404) {
-        // Redirect to not found page
-        window.location.href = "/not-found";
       } else if (statusCode === 500) {
         // Redirect to server error page with error details
         const errorDetails = encodeURIComponent(
@@ -52,7 +46,8 @@ export const processApiResponse = async (apiCall) => {
             details: error.response,
           })
         );
-        window.location.href = `/server-error?error=${errorDetails}`;
+        console.log(error);
+        // window.location.href = `/server-error?error=${errorDetails}`;
       } else {
         // Log unexpected errors
         console.error("An unexpected error occurred:", error);

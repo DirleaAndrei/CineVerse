@@ -48,7 +48,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
 
         if (savedComment == null)
         {
-            throw new NotFoundException(nameof(Comment), comment.Id.ToString());
+            throw new Exception("Something went wrong, and the comment was not saved!");
         }
 
         return new CommentDto

@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using CineVerse.Domain.Constants;
+﻿using CineVerse.Domain.Constants;
 using CineVerse.Domain.Entities;
 using CineVerse.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
@@ -94,7 +93,7 @@ public class ApplicationDbContextInitialiser
             var firstComment = new Comment()
             {
                 Text = "The best movie ever!",
-                MovieId = 950387,
+                MovieId = 950387, // A Minecraft Movie
                 CreatedBy = administrator.Id,
                 ParentCommentId = null
             };

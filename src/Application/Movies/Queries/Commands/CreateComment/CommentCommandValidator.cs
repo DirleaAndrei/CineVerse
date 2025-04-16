@@ -1,4 +1,3 @@
-using System.Data;
 using CineVerse.Application.Movies.Commands.CreateComment;
 
 namespace CineVerse.Application.Movies.Queries.Commands.CreateComment;

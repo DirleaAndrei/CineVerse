@@ -51,8 +51,7 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, PaginatedLi
                 }
 
                 return new PaginatedList<SummarizedMovie>
-                    (moviesResponse.results, moviesResponse.total_results,
-                     moviesResponse.page, moviesResponse.total_pages);
+                    (moviesResponse.results, moviesResponse.page, moviesResponse.total_pages);
             }
             else
             {
@@ -64,12 +63,12 @@ public class GetMoviesQueryHandler : IRequestHandler<GetMoviesQuery, PaginatedLi
         catch (TaskCanceledException ex)
         {
             _logger.LogError(ex, "The API request was canceled, possibly due to a timeout.");
-            throw new TimeoutException("The request to the TMDB API timed out. Please try again later.", ex);
+            throw;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while fetching movies from TMDB API.");
-            throw new Exception("An internal server error occurred. Please try again later.", ex);
+            throw;
         }
     }
 }

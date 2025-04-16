@@ -42,7 +42,7 @@ public class SearchMoviesQueryHandler : IRequestHandler<SearchMoviesQuery, Pagin
             if (summarizedMovies == null || summarizedMovies.results == null)
             {
                 _logger.LogWarning("No movies found for the given criteria.");
-                return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0, 0);
+                return new PaginatedList<SummarizedMovie>(Array.Empty<SummarizedMovie>(), 0, 0);
             }
 
             // Filter movies by genre if applicable
@@ -52,7 +52,6 @@ public class SearchMoviesQueryHandler : IRequestHandler<SearchMoviesQuery, Pagin
 
             return new PaginatedList<SummarizedMovie>(
                 filteredMovies,
-                summarizedMovies.total_results,
                 summarizedMovies.page,
                 summarizedMovies.total_pages
             );
@@ -60,7 +59,7 @@ public class SearchMoviesQueryHandler : IRequestHandler<SearchMoviesQuery, Pagin
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while fetching movies.");
-            throw new Exception("An internal server error occurred. Please try again later.", ex);
+            throw;
         }
     }
 
@@ -68,8 +67,10 @@ public class SearchMoviesQueryHandler : IRequestHandler<SearchMoviesQuery, Pagin
     {
         try
         {
-            var options = new RestClientOptions(endpoint);
-            options.Timeout = TimeSpan.FromMilliseconds(5000);
+            var options = new RestClientOptions(endpoint)
+            {
+                Timeout = TimeSpan.FromMilliseconds(5000)
+            };
             var client = new RestClient(options);
             var restRequest = new RestRequest("");
             restRequest.AddHeader("accept", "application/json");
@@ -88,7 +89,7 @@ public class SearchMoviesQueryHandler : IRequestHandler<SearchMoviesQuery, Pagin
         catch (TaskCanceledException ex)
         {
             _logger.LogError(ex, "The API request was canceled, possibly due to a timeout.");
-            throw new TimeoutException("The request to the TMDB API timed out. Please try again later.", ex);
+            throw;
         }
         catch (Exception ex)
         {

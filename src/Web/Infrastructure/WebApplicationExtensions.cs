@@ -35,26 +35,4 @@ public static class WebApplicationExtensions
 
         return app;
     }
-
-    public static IResult HandleResults<T>(Results<Ok<T>, NotFound<T>, StatusCodeHttpResult> result)
-    {
-        return result switch
-        {
-            Ok<T> ok => Results.Ok(ok.Value),
-            NotFound<T> notFound => Results.NotFound(notFound.Value),
-            StatusCodeHttpResult statusCode => Results.StatusCode(statusCode.StatusCode),
-            _ => Results.StatusCode(500) // Default to Internal Server Error for unexpected cases
-        };
-    }
-
-    public static IResult HandleResults<T>(Results<Ok<T>, BadRequest<T>, StatusCodeHttpResult> result)
-    {
-        return result switch
-        {
-            Ok<T> ok => Results.Ok(ok.Value),
-            BadRequest<T> badRequest => Results.BadRequest(badRequest.Value),
-            StatusCodeHttpResult statusCode => Results.StatusCode(statusCode.StatusCode),
-            _ => Results.StatusCode(500) // Default to Internal Server Error for unexpected cases
-        };
-    }
 }
