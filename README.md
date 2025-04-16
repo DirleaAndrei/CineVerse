@@ -2,6 +2,11 @@
 
 The project was generated using the [Clean.Architecture.Solution.Template](https://github.com/jasontaylordev/CineVerse) version 8.0.6.
 
+## Prerequisite
+
+- .NET 8.0 SDK (latest version)
+- Node.js (latest LTS)
+
 ## Build
 
 Run `dotnet build -tl` to build the solution.
@@ -39,7 +44,7 @@ Create a new query:
 dotnet new ca-usecase -n GetTodos -fn TodoLists -ut query -rt TodosVm
 ```
 
-If you encounter the error *"No templates or subcommands found matching: 'ca-usecase'."*, install the template and try again:
+If you encounter the error _"No templates or subcommands found matching: 'ca-usecase'."_, install the template and try again:
 
 ```bash
 dotnet new install Clean.Architecture.Solution.Template::8.0.6
@@ -50,6 +55,7 @@ dotnet new install Clean.Architecture.Solution.Template::8.0.6
 The solution contains unit, integration, functional, and acceptance tests.
 
 To run the unit, integration, and functional tests (excluding acceptance tests):
+
 ```bash
 dotnet test --filter "FullyQualifiedName!~AcceptanceTests"
 ```
@@ -62,10 +68,12 @@ dotnet run
 ```
 
 Then, in a new console, run the tests:
+
 ```bash
 cd .\src\Web\
 dotnet test
 ```
 
 ## Help
+
 To learn more about the template go to the [project website](https://github.com/jasontaylordev/CleanArchitecture). Here you can find additional guidance, request new features, report a bug, and discuss the template with other users.

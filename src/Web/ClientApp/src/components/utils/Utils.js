@@ -46,8 +46,7 @@ export const processApiResponse = async (apiCall) => {
             details: error.response,
           })
         );
-        console.log(error);
-        // window.location.href = `/server-error?error=${errorDetails}`;
+        window.location.href = `/server-error?error=${errorDetails}`;
       } else {
         // Log unexpected errors
         console.error("An unexpected error occurred:", error);
